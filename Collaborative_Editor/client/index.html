@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Document Viewer and Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            max-width: 600px;
+            height: 300px;
+            font-size: 18px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            resize: none;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Live Document Viewer and Editor</h1>
+        <p id="status">Status: CONNECTED</p>
+        <textarea id="document" rows="20" cols="80"></textarea>
+    </div>
+
+    <script>
+        const textarea = document.getElementById('document');
+        const statusElement = document.getElementById('status');
+
+        const ws = new WebSocket('ws://' + window.location.host + '/ws');
+
+        ws.onmessage = function(event) {
+            const data = event.data;
+
+            if (data.startsWith("status:")) {
+                const status = data.split("status:")[1];
+                statusElement.textContent = "Status: " + status;
+            } else {
+                const currentPosition = textarea.selectionStart;
+                textarea.value = data;
+                textarea.setSelectionRange(currentPosition, currentPosition);
+            }
+        };
+
+        ws.onclose = function() {
+            console.log("WebSocket connection closed. Reloading page...");
+            setTimeout(function() {
+                location.reload();
+            }, 2000);
+        };
+
+        textarea.addEventListener('input', function(e) {
+            ws.send(e.target.value);
+        });
+    </script>
+</body>
+</html>

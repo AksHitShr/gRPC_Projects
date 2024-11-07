@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package labyrinth;
+
+service LabyrinthGame {
+    rpc GetLabyrinthInfo (EmptyRequest) returns (LabyrinthInfo);
+    rpc GetPlayerStatus (EmptyRequest) returns (PlayerStatus);
+    rpc RegisterMove (MoveRequest) returns (MoveResponse);
+    rpc Revelio (RevelioRequest) returns (stream Position);
+    rpc Bombarda (stream Position) returns (EmptyResponse);
+}
+
+message EmptyRequest {}
+
+message LabyrinthInfo {
+    int32 width = 1;
+    int32 height = 2;
+}
+
+message PlayerStatus {
+    int32 score = 1;
+    int32 health = 2;
+    Position currentPosition = 3;
+    int32 remainingSpells = 4;
+}
+
+message MoveRequest {
+    string direction = 1; // "up", "down", "left", "right"
+}
+
+message MoveResponse {
+    string status = 1; // "success", "failure", "victory", "death"
+}
+
+message RevelioRequest {
+    Position targetPosition = 1;
+    string tileType = 2; // "coin", "wall"
+}
+
+message Position {
+    int32 x = 1;
+    int32 y = 2;
+}
+
+message EmptyResponse {}
